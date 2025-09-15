@@ -13,8 +13,8 @@ docs/ # Documentation
 
 
 ## ✅ Implemented Algorithms
-- Linear 
--- Notes: Standarizing data (X, y) makes big difference for gradient-based method.
+- Linear
+  -   Notes: Standardizing data (X, y) makes a big difference for the gradient-based method.
 - Logistic Regression
 - KNN
 - Decision Trees, Random Forest
@@ -29,3 +29,4 @@ docs/ # Documentation
 git clone https://github.com/x35yao/ml-from-scratch.git
 cd ml-from-scratch
 pip install -e .[dev]
+
