@@ -12,8 +12,10 @@ benchmarks/ # Simple speed/accuracy comparisons vs scikit-learn
 docs/ # Documentation
 
 
-## ✅ Implemented Algorithms (planned)
-- Linear & Logistic Regression
+## ✅ Implemented Algorithms
+- Linear 
+-- Notes: Standarizing data (X, y) makes big difference for gradient-based method.
+- Logistic Regression
 - KNN
 - Decision Trees, Random Forest
 - Naive Bayes
