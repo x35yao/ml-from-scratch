@@ -1,3 +1,5 @@
+# Logistic Regression — Math Derivation
+
 i. **Model**  
   <p align="center">
     <img src="https://latex.codecogs.com/svg.latex?p_i%20=%20\sigma(z_i),%20%5Cquad%20z_i%20=%20w%5ETx_i%20+%20b,%20%5Cquad%20%5Csigma(z)%20=%20%5Cfrac{1}{1+e%5E{-z}}" />
