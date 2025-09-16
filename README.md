@@ -14,6 +14,7 @@ The goal is educational: understand how algorithms work under the hood by buildi
 - Linear
   -   Notes: Standardizing data (X, y) makes a big difference for the gradient-based method. Fix overflow problem.
 - Logistic Regression
+  -  [Full derivation of loss & gradients](docs/logistic_regression_math.md)
 - KNN
 - Decision Trees, Random Forest
 - Naive Bayes
@@ -27,6 +28,7 @@ The goal is educational: understand how algorithms work under the hood by buildi
 git clone https://github.com/x35yao/ml-from-scratch.git
 cd ml-from-scratch
 pip install -e .[dev]
+
 
 
 
