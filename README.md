@@ -14,10 +14,13 @@ The goal is educational: understand how algorithms work under the hood by buildi
 - Linear regression
   -   Notes: Standardizing data (X, y) makes a big difference for the gradient-based method. Fix the overflow problem.
   -   [Full derivation of loss & gradients](docs/linear_regression_math.md)
+  
 - Logistic Regression
   -  [Full derivation of loss & gradients](docs/logistic_regression_math.md)
--  Softmax Regression
+
+- Softmax Regression
   -  [Full derivation of loss & gradients](docs/softmax_regression_math.md)
+
 - KNN
 - Decision Trees, Random Forest
 - Naive Bayes
@@ -31,6 +34,7 @@ The goal is educational: understand how algorithms work under the hood by buildi
 git clone https://github.com/x35yao/ml-from-scratch.git
 cd ml-from-scratch
 pip install -e .[dev]
+
 
 
 
