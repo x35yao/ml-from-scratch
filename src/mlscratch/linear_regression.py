@@ -1,5 +1,5 @@
 import numpy as np
-from .utils import ensure_2D
+from mlscratch.utils import ensure_2D, add_intercept, standardize
 
 class LinearRegression:
     def __init__(self):
@@ -45,7 +45,8 @@ class LinearRegression:
         y = np.asarray(y, dtype=np.float64).ravel()  # ensure (N,)
         self.N, self.D = X.shape[0], X.shape[1]
          # Augment with ones for intercept
-        X_aug = np.concatenate([X, np.ones([self.N, 1])], axis = 1)
+        X_aug = add_intercept(X)
+        # X_aug = np.concatenate([X, np.ones([self.N, 1])], axis = 1)
         # Use lstsq (more stable than inv(X^T X) @ X^T y)
         w, *_ = np.linalg.lstsq(X_aug, y, rcond=None)
         self.w = w
@@ -66,9 +67,7 @@ class LinearRegression:
         self.N, self.D = N, D
 
          # 2) Standardize features (and keep transform for predict)
-        self.x_mean = X.mean(axis=0, keepdims=True)
-        self.x_std  = X.std(axis=0, keepdims=True) + 1e-12
-        Xn = (X - self.x_mean) / self.x_std
+        Xn, self.x_mean, self.x_std = standardize(X)
 
         # 3) Center target so bias doesn’t need to fight large offsets
         self.y_mean = y.mean()

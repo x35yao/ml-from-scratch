@@ -1,5 +1,6 @@
 import numpy as np
-from .utils import ensure_2D
+from mlscratch.utils import standardize, ensure_2D, sigmoid
+
 
 class LogisticRegression:
     def __init__(self):
@@ -8,11 +9,6 @@ class LogisticRegression:
         self.intercept_ = None
         self.x_mean = None
         self.x_std = None
-    
-    def _sigmoid(self, z):
-        # numerically stable sigmoid
-        z = np.clip(z, -709, 709)    # exp overflow guard for float64
-        return 1.0 / (1.0 + np.exp(-z))
 
 
     def fit(self, X, y, lr = 1e-2, max_iter = 1000, tol = 1e-8, random_state = 0):
@@ -27,13 +23,11 @@ class LogisticRegression:
         w = rng.normal(scale = 1e-3, size = D)
         b = 0.0
 
-        self.x_mean = X.mean(axis=0, keepdims=True)
-        self.x_std  = X.std(axis=0, keepdims=True) + 1e-12
-        Xn = (X - self.x_mean) / self.x_std
+        Xn, self.x_mean, self.x_std = standardize(X)
 
         for it in range(max_iter):
             z = Xn @ w + b
-            p = self._sigmoid(z)                 # shape (N,)
+            p = sigmoid(z)                 # shape (N,)
 
             # gradient of average binary cross-entropy
             err = (p - y)                        # (N,)
@@ -66,7 +60,7 @@ class LogisticRegression:
         X = ensure_2D(X)
         Xb = np.concatenate([X, np.ones((X.shape[0], 1))], axis=1)
         z = Xb @ self.w
-        return self._sigmoid(z)  # P(y=1)
+        return sigmoid(z)  # P(y=1)
 
     def predict(self, X, threshold=0.5):
         p = self.predict_proba(X)
