@@ -1,4 +1,6 @@
 import numpy as np
+from .utils import ensure_2D
+
 class LinearRegression:
     def __init__(self):
         self.N = None
@@ -10,33 +12,6 @@ class LinearRegression:
         self.max_iter = 200
         self.tol = 1e-6
 
-    def _ensure_2D(self, X):
-        """Ensure X is 2-D.
-
-        Parameters
-        ----------
-        X : array_like of shape (N, D) or (N,)
-            Input features.
-
-        Returns
-        -------
-
-        X : ndarray of shape (N, D)
-            If a 1-D array is passed, it is reshaped to (N, 1).
-
-        Raises
-        ------
-        ValueError
-            If X has more than 2 dimensions.
-        """
-        X = np.asarray(X, dtype=np.float64)
-
-        if X.ndim == 1:
-            X = X.reshape(-1, 1)
-        elif X.ndim != 2:
-            raise ValueError("X must be 1D or 2D")
-        return X
-    
     def fit_closed_form(self, X, y):
         """Fit linear model via a stable least-squares solve.
 
@@ -66,7 +41,7 @@ class LinearRegression:
             If X and y have mismatched first dimensions.
         """
 
-        X = self._ensure_2D(X)
+        X = ensure_2D(X)
         y = np.asarray(y, dtype=np.float64).ravel()  # ensure (N,)
         self.N, self.D = X.shape[0], X.shape[1]
          # Augment with ones for intercept
@@ -85,7 +60,7 @@ class LinearRegression:
             Minimizes: (1/N)||Xw + b - y||^2 + l2 * ||w||^2   (no penalty on b)
         """
          
-        X = self._ensure_2D(X).astype(np.float64, copy=False)
+        X = ensure_2D(X).astype(np.float64, copy=False)
         y = np.asarray(y, dtype=np.float64).ravel()
         N, D = X.shape
         self.N, self.D = N, D
@@ -154,7 +129,7 @@ class LinearRegression:
         """
         if self.w is None:
             raise RuntimeError("Model is not fitted yet. Call fit_closed_form or fit_gd first.")
-        X = self._ensure_2D(X)
+        X = ensure_2D(X)
         X_aug = np.concatenate([X, np.ones((X.shape[0], 1))], axis=1)
         return X_aug @ self.w
 
