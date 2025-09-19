@@ -21,8 +21,9 @@ The goal is educational: understand how algorithms work under the hood by buildi
 - Softmax Regression
   -  [Full derivation of loss & gradients](docs/softmax_regression_math.md)
 
-- KNN
 - Decision Trees, Random Forest
+  -  [Full derivation of loss & gradients](docs/decision_tree_math.md)
+- KNN
 - Naive Bayes
 - SVM (linear + kernel)
 - PCA, LDA
