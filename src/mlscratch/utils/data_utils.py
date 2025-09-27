@@ -58,6 +58,22 @@ def train_test_split(X, y=None, train_size=0.8, random_state=None, shuffle = Tru
         return X[train_idx], y[train_idx], X[test_idx], y[test_idx]
 
 def class_probs(y, n_classes):
+    """
+    Compute the probability of each class in the label array.
+
+    # If s == 0 (empty input), return raw counts to avoid division by zero
+    return counts / s if s > 0 else counts
+    ----------
+    y : array-like, shape (N,)
+        Array of class labels.
+    n_classes : int
+        Number of classes.
+
+    Returns
+    -------
+    probs : ndarray, shape (n_classes,)
+        Probability of each class.
+    """
     y = np.asarray(y, dtype=np.int64).ravel()
     counts = np.bincount(y, minlength=n_classes).astype(float)
     s = counts.sum()
