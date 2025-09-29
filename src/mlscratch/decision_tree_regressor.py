@@ -47,7 +47,7 @@ class DecisionTreeRegressor:
         raise ValueError(f"Invalid type for max_features: {type(self.max_features)}")
 
     def _stopping(self, y, depth):
-        if depth >= self.max_depth:
+        if self.max_depth is not None and depth >= self.max_depth:
             return True
         if len(y) < self.min_samples_split:
             return True

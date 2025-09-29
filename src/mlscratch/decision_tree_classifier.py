@@ -57,7 +57,7 @@ class DecisionTreeClassifier:
         return Node(probs = probs, prediction = self.classes_[pred_idx], depth = depth, is_leaf = True)
 
     def _stopping(self, y, depth):
-        if depth >= self.max_depth:
+        if self.max_depth is not None and depth >= self.max_depth:
             return True
         
         if len(y) < self.min_samples_split:
