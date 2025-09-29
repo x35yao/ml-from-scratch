@@ -14,16 +14,39 @@ class Node:
         self.depth = depth
 
 class DecisionTreeClassifier:
-    def __init__(self, max_depth = 5, min_samples_leaf = 1, min_samples_split = 2, criteria = 'gini'):
+    def __init__(self, max_depth = 5, min_samples_leaf = 1, min_samples_split = 2, criterion = 'gini',
+                 max_features = None, random_state=None):
         self.max_depth = max_depth
         self.min_samples_leaf = min_samples_leaf
         self.min_samples_split = min_samples_split
-        if criteria == 'gini':
-            self.criteria = gini
-        elif criteria == 'entropy':
-            self.criteria = entropy
+        self.max_features = max_features
+        self.random_state = random_state
+        if criterion == 'gini':
+            self.criterion = gini
+        elif criterion == 'entropy':
+            self.criterion = entropy
         else:
-            raise ValueError("Criteria needs to be either gini or entropy")
+            raise ValueError("criterion needs to be either gini or entropy")
+        
+    def _resolve_max_features(self, d):
+        if not self.max_features or self.max_features in ['all', 'max']:
+            return d
+        if isinstance(self.max_features, str):
+            if self.max_features == 'log2':
+                return max(1, int(np.log2(d)))
+            if self.max_features == 'sqrt' or self.max_features == 'auto':
+                return max(1, int(np.sqrt(d)))
+            else:
+                raise ValueError('Unrecognized string for max_features')
+        if isinstance(self.max_features, int):
+            if self.max_features <= 0:
+                raise ValueError("max_features must be a positive integer")
+            return min(d, self.max_features)
+        if isinstance(self.max_features, float):
+            if not 0 < self.max_features <= 1:
+                raise ValueError("max_features must be a float in (0, 1]")
+            return max(int(d * self.max_features), 1)
+        raise ValueError(f"Invalid type for max_features: {type(self.max_features)}")
 
     def _classes_probs(self, y):
         return class_probs(y, n_classes=len(self.classes_))
@@ -49,6 +72,9 @@ class DecisionTreeClassifier:
     def _best_split(self, X, y):
         N, D = X.shape
 
+        d = self._resolve_max_features(D)                 # how many features to try at this node
+        feat_idx = self._rng.choice(D, size=d, replace=False)  # choose subset
+
         best_gain = -np.inf
         best_left_idx = None
         best_right_idx = None
@@ -57,9 +83,9 @@ class DecisionTreeClassifier:
 
         min_samples_leaf = getattr(self, 'min_samples_leaf', 1)
         probs_parent = self._classes_probs(y)
-        impurity_parent = self.criteria(probs_parent)
-        for d in range(D):
-            x = X[:, d]
+        impurity_parent = self.criterion(probs_parent)
+        for d_idx in feat_idx:
+            x = X[:, d_idx]
             x_unique = np.unique(x)
             if x_unique.size <= 1: # can't split
                 continue
@@ -79,13 +105,13 @@ class DecisionTreeClassifier:
                 probs_left = self._classes_probs(y[left_idx])
                 probs_right = self._classes_probs(y[right_idx])
 
-                impurity_children = (left_count / N * self.criteria(probs_left) + 
-                                     right_count / N * self.criteria(probs_right))
+                impurity_children = (left_count / N * self.criterion(probs_left) + 
+                                     right_count / N * self.criterion(probs_right))
                 gain = impurity_parent - impurity_children
 
                 if gain > best_gain:
                     best_gain = gain
-                    best_feature = d
+                    best_feature = d_idx
                     best_threshold = t
                     best_left_idx = left_idx
                     best_right_idx = right_idx
@@ -122,6 +148,7 @@ class DecisionTreeClassifier:
                     depth = depth)
         
     def fit(self, X, y):
+        self._rng = np.random.default_rng(self.random_state)
         X = ensure_2D(X)
         y = np.asarray(y)
         classes, y_idx = np.unique(y, return_inverse = True)

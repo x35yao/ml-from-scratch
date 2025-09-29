@@ -12,17 +12,39 @@ class Node:
         self.depth = depth
 
 class DecisionTreeRegressor:
-    def __init__(self, max_depth = 5, min_samples_split = 2, min_samples_leaf = 1, criterion = 'mse'):
+    def __init__(self, max_depth = 5, min_samples_split = 2, min_samples_leaf = 1, criterion = 'mse', max_features = None, random_state = None):
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
         self.min_samples_leaf = min_samples_leaf
         self.criterion = criterion
+        self.max_features = max_features
+        self.random_state = random_state
         if self.criterion == 'mse':
             self.impurity_func = node_mse
         elif self.criterion == 'mae':
             self.impurity_func = node_mae
         else:
             raise ValueError("criterion needs to be either mse or mae")
+    
+    def _resolve_max_features(self, d):
+        if not self.max_features or self.max_features in ['auto', 'max']:
+            return d
+        if isinstance(self.max_features, str):
+            if self.max_features == 'log2':
+                return max(1, int(np.log2(d)))
+            if self.max_features == 'sqrt':
+                return max(1, int(np.sqrt(d)))
+            else:
+                raise ValueError('Unrecognized string for max_features')
+        if isinstance(self.max_features, int):
+            if self.max_features <= 0:
+                raise ValueError("max_features must be a positive integer")
+            return min(d, self.max_features)
+        if isinstance(self.max_features, float):
+            if not 0 < self.max_features <= 1:
+                raise ValueError("max_features must be a float in (0, 1]")
+            return max(int(d * self.max_features), 1)
+        raise ValueError(f"Invalid type for max_features: {type(self.max_features)}")
 
     def _stopping(self, y, depth):
         if depth >= self.max_depth:
@@ -48,6 +70,9 @@ class DecisionTreeRegressor:
     def _best_split(self, X, y):
         impurity_parent = self.impurity_func(y)
         N, D = X.shape
+        d = self._resolve_max_features(D)
+        feat_idx = self._rng.choice(D, size=d, replace=False)  # choose subset
+        
         best_gain = -np.inf
         best_feature = None
         best_threshold = None
@@ -55,8 +80,8 @@ class DecisionTreeRegressor:
         best_right_idx = None
 
         min_samples_leaf = getattr(self, "min_samples_leaf", 1)
-        for d in range(D):
-            x = X[:,d]
+        for d_idx in feat_idx:
+            x = X[:,d_idx]
             x_unique = np.unique(x).astype(float)
             if x_unique.size <= 1:
                 continue
@@ -78,7 +103,7 @@ class DecisionTreeRegressor:
 
                 if gain > best_gain:
                     best_gain = gain
-                    best_feature = d
+                    best_feature = d_idx
                     best_threshold = t
                     best_left_idx = left_idx
                     best_right_idx = right_idx
@@ -108,6 +133,7 @@ class DecisionTreeRegressor:
                         depth = depth)
 
     def fit(self, X, y):
+        self._rng = np.random.default_rng(self.random_state)
         X = ensure_2D(X)
         y = np.asarray(y).astype(float)
 
