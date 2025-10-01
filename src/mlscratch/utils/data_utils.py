@@ -45,6 +45,12 @@ def one_hot_decode(Y):
 
 
 def train_test_split(X, y=None, train_size=0.8, random_state=None, shuffle = True):
+    '''
+    Split data with train_size percentage
+
+    Return:
+        X_train, X_test, y_train, y_test
+    '''
     rng = np.random.default_rng(random_state)
     N = len(X)
     perm = rng.permutation(N) if shuffle else np.arange(N)
@@ -55,7 +61,7 @@ def train_test_split(X, y=None, train_size=0.8, random_state=None, shuffle = Tru
     if y is None:
         return X[train_idx], X[test_idx]
     else:
-        return X[train_idx], y[train_idx], X[test_idx], y[test_idx]
+        return X[train_idx], X[test_idx], y[train_idx], y[test_idx]
 
 def class_probs(y, n_classes):
     """
