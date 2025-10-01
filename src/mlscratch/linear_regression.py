@@ -105,6 +105,15 @@ class LinearRegression:
         self.intercept_ = intercept
         self.w = np.r_[coef, intercept]
         return self
+    
+    def fit(self, X, y, method = 'close'):
+        if method == 'close':
+            return self.fit_closed_form(X, y)
+        elif method == 'gd':
+            return self.fit_gd(X, y)
+        else:
+            raise ValueError('Method needs to be either close or gd')
+            
 
     def predict(self, X):
         """Predict targets for X.
@@ -131,6 +140,13 @@ class LinearRegression:
         X = ensure_2D(X)
         X_aug = np.concatenate([X, np.ones((X.shape[0], 1))], axis=1)
         return X_aug @ self.w
+    
+    def score(self, X, y):
+        y = np.asarray(y).ravel()
+        y_hat = self.predict(X)
+        ss_res = np.sum((y - y_hat) ** 2)
+        ss_tot = np.sum((y - y.mean()) ** 2)
+        return 1 - ss_res / ss_tot if ss_tot > 0 else 0.0
 
     def mse(self, y, y_pred):
         """Compute Mean Squared Error (MSE).
